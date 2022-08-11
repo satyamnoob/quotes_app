@@ -3,4 +3,5 @@ import 'package:quotes_app/models/quote.dart';
 
 final StateProvider authorQuoteProvider = StateProvider<Quote?>((ref) => null);
 
-final StateProvider sharedPrefProvider = StateProvider<bool?>((ref) => null);
+final StateProvider searchQuoteProvider = StateProvider<Quote?>((ref) => null);
+
