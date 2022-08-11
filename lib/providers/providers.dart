@@ -5,3 +5,4 @@ final StateProvider authorQuoteProvider = StateProvider<Quote?>((ref) => null);
 
 final StateProvider searchQuoteProvider = StateProvider<Quote?>((ref) => null);
 
+final StateProvider pageIndexProv = StateProvider<int>((ref) => 0);
