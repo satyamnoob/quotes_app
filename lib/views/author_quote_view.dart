@@ -1,28 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quotes_app/controller/author_quotes_response_controller.dart';
 import 'package:quotes_app/models/author_quote.dart';
+import 'package:quotes_app/providers/auth_quote_provider.dart';
 
-class AuthorQuoteView extends StatefulWidget {
+class AuthorQuoteView extends ConsumerStatefulWidget {
   const AuthorQuoteView({Key? key}) : super(key: key);
 
   @override
-  State<AuthorQuoteView> createState() => _AuthorQuoteViewState();
+  ConsumerState<AuthorQuoteView> createState() => _AuthorQuoteViewState();
 }
 
-class _AuthorQuoteViewState extends State<AuthorQuoteView> {
+class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView> {
   bool _quoteArrived = false;
-  late AuthorQuote quote;
+  late AuthorQuote? quote = AuthorQuote();
+  late final provider = AuthQuoteProvider();
   @override
   void initState() {
     super.initState();
-    initAsync();
+    if (!_quoteArrived) {
+      initAsync();
+    }
   }
 
   void initAsync() async {
     quote = await AuthorQuotesResponseController(author: 'Rabindranath Tagore')
         .getAuthorQuoteResponse();
-    print(quote.content);
+    final q = ref.watch(authQuoteProvider);
+    provider.addQuote(
+      AuthorQuote(author: quote!.author, content: quote!.content),
+    );
+    print(q);
     setState(() {
       _quoteArrived = true;
     });
@@ -33,7 +41,7 @@ class _AuthorQuoteViewState extends State<AuthorQuoteView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth - 40;
-        return !_quoteArrived
+        return (!_quoteArrived)
             ? Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -84,7 +92,8 @@ class _AuthorQuoteViewState extends State<AuthorQuoteView> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          quote.content!,
+                          quote!.content!,
+                          // 'Loading',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.black,
@@ -97,7 +106,8 @@ class _AuthorQuoteViewState extends State<AuthorQuoteView> {
                           height: 20,
                         ),
                         Text(
-                          '- ${quote.author!}',
+                          '- ${quote!.author!}',
+                          // 'loading',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.black,
