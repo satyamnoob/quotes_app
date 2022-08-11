@@ -13,72 +13,43 @@ class AuthorQuoteView extends ConsumerStatefulWidget {
 
 class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView> {
   bool _quoteArrived = false;
-  late AuthorQuote? quote = AuthorQuote();
-  late final provider = AuthQuoteProvider();
+  bool _errLoading = false;
+  late AuthorQuote quote;
   @override
   void initState() {
     super.initState();
-    if (!_quoteArrived) {
-      initAsync();
-    }
+    initAsync().whenComplete(() => setState(() => _quoteArrived = true));
   }
 
-  void initAsync() async {
-    quote = await AuthorQuotesResponseController(author: 'Rabindranath Tagore')
-        .getAuthorQuoteResponse();
-    final q = ref.watch(authQuoteProvider);
-    provider.addQuote(
-      AuthorQuote(author: quote!.author, content: quote!.content),
-    );
-    print(q);
-    setState(() {
-      _quoteArrived = true;
-    });
+  Future<void> initAsync() async {
+    try {
+      quote = ref.read(authQuoteProvider.state).state ??
+          await AuthorQuotesResponseController(author: 'Rabindranath Tagore')
+              .getAuthorQuoteResponse()
+              .then((value) => ref.read(authQuoteProvider.state).state = value);
+    } catch (e) {
+      print(e.toString());
+      setState(() => _errLoading = true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth - 40;
-        return (!_quoteArrived)
-            ? Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.white,
-                  ),
-                  width: maxWidth,
-                  height: 50,
-                  child: Row(
-                    children: [
-                      const Flexible(
-                        flex: 1,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Search Author",
-                            hintStyle: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        splashRadius: 1,
-                        icon: const Icon(
-                          Icons.search,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
+    return _errLoading
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const <Widget>[
+              Icon(Icons.error, color: Colors.red, size: 28.0),
+              SizedBox(width: 5.0),
+              Text(
+                "Something went wrong!",
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+            ],
+          )
+        : !_quoteArrived
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white))
             : Container(
                 padding: const EdgeInsets.all(
                   10,
@@ -92,7 +63,7 @@ class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          quote!.content!,
+                          quote.content!,
                           // 'Loading',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
@@ -106,7 +77,7 @@ class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView> {
                           height: 20,
                         ),
                         Text(
-                          '- ${quote!.author!}',
+                          '- ${quote.author!}',
                           // 'loading',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
@@ -121,7 +92,5 @@ class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView> {
                   ],
                 ),
               );
-      },
-    );
   }
 }
