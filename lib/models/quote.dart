@@ -31,6 +31,6 @@ class Quote {
   Map<String, dynamic> toJsonForSP() => {
         'content': content,
         'author': author,
-        'id': id,
+        '_id': id,
       };
 }
