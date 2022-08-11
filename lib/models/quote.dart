@@ -1,23 +1,27 @@
 import 'dart:math';
 
-class AuthorQuote {
+class Quote {
   String? content;
   String? author;
+  String? id;
 
-  AuthorQuote({
+  Quote({
+    this.id,
     this.content,
     this.author,
   });
 
-  factory AuthorQuote.fromJson(Map<String, dynamic> json, int? count) {
+  factory Quote.fromJson(Map<String, dynamic> json, int? count) {
     if (count == null) {
-      return AuthorQuote(
+      return Quote(
+        id: json['_id'],
         content: json['content'],
         author: json['author'],
       );
     } else {
       int random = 0 + Random().nextInt(count - 0);
-      return AuthorQuote(
+      return Quote(
+        id: json['results'][random]['_id'],
         content: json["results"][random]["content"],
         author: json["results"][random]["author"],
       );
@@ -27,5 +31,6 @@ class AuthorQuote {
   Map<String, dynamic> toJsonForSP() => {
         'content': content,
         'author': author,
+        'id': id,
       };
 }
