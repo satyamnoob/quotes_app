@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:quotes_app/views/quote_view.dart';
 
 import '../controller/search_quote_response_controller.dart';
 import '../models/quote.dart';
@@ -13,7 +13,8 @@ class SearchQuoteView extends ConsumerStatefulWidget {
   ConsumerState<SearchQuoteView> createState() => _SearchQuoteViewState();
 }
 
-class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
+class _SearchQuoteViewState extends ConsumerState<SearchQuoteView>
+    with AutomaticKeepAliveClientMixin {
   bool _quotesArrived = false;
   bool _errLoading = false;
   bool _quoteLoading = false;
@@ -24,7 +25,7 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
 
   Future<void> searchQuotesByQueryAndLimit() async {
     try {
-      _quoteLoading = true;
+      setState(() => _quoteLoading = true);
       quotes = ref.read(searchQuoteProvider.state).state ??
           await SearchQuotesResponseController(
             query: _queryController.text.trim(),
@@ -37,24 +38,19 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
                   (value) => ref.read(searchQuoteProvider.state).state = value)
               .whenComplete(() => setState(() => _quoteLoading = false));
       if (quotes!.isNotEmpty) {
-        setState(() {
-          _quotesArrived = true;
-          _quoteLoading = false;
-        });
+        _quotesArrived = true;
+        _quoteLoading = false;
+        setState(() {});
       }
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // _isLiked = prefs.getBool("like${quote.id!}") ?? false;
-      // prefs.clear();
     } catch (e) {
       print(e.toString());
-      setState(() {
-        _errLoading = true;
-        _quoteLoading = false;
-      });
+      _errLoading = true;
+      _quoteLoading = false;
+      setState(() {});
     }
   }
 
-  void _initialState() {
+  void initialState() {
     _errLoading = false;
     _quotesArrived = false;
     setState(() {});
@@ -62,6 +58,8 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return _errLoading
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +73,7 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
               IconButton(
                 icon: const Icon(Icons.cancel_outlined, size: 28.0),
                 color: Colors.white,
-                onPressed: () => _initialState(),
+                onPressed: () => initialState(),
               ),
             ],
           )
@@ -168,18 +166,9 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
                     flex: 1,
                     child: ListView.builder(
                       itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 2.0,
-                          child: ListTile(
-                            leading: Text(
-                              '${quotes![index].author!} - ',
-                            ),
-                            title: Text(
-                              quotes![index].content!,
-                              textAlign: TextAlign.end,
-                            ),
-                            contentPadding: const EdgeInsets.all(8),
-                          ),
+                        return QuoteView(
+                          quote: quotes![index],
+                          initialState: initialState,
                         );
                       },
                       itemCount: quotes!.length,
@@ -188,4 +177,7 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
                 ],
               );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
