@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
         ),
       ),
-      home: HomeView(),
+      home: const HomeView(),
     );
   }
 }

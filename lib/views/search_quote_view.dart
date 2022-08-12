@@ -26,24 +26,21 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView>
   Future<void> searchQuotesByQueryAndLimit() async {
     try {
       setState(() => _quoteLoading = true);
-      quotes = ref.read(searchQuoteProvider.state).state ??
-          await SearchQuotesResponseController(
-            query: _queryController.text.trim(),
-            limit: int.parse(
-              _limitController.text.trim(),
-            ),
-          )
-              .getSearchQuoteResponse()
-              .then(
-                  (value) => ref.read(searchQuoteProvider.state).state = value)
-              .whenComplete(() => setState(() => _quoteLoading = false));
+      quotes = await SearchQuotesResponseController(
+        query: _queryController.text.trim(),
+        limit: int.parse(
+          _limitController.text.trim(),
+        ),
+      )
+          .getSearchQuoteResponse()
+          .then((value) => ref.read(searchQuoteProvider.state).state = value)
+          .whenComplete(() => setState(() => _quoteLoading = false));
       if (quotes!.isNotEmpty) {
         _quotesArrived = true;
         _quoteLoading = false;
         setState(() {});
       }
     } catch (e) {
-      print(e.toString());
       _errLoading = true;
       _quoteLoading = false;
       setState(() {});
@@ -53,6 +50,7 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView>
   void initialState() {
     _errLoading = false;
     _quotesArrived = false;
+    quotes = [];
     setState(() {});
   }
 
@@ -160,18 +158,43 @@ class _SearchQuoteViewState extends ConsumerState<SearchQuoteView>
                         color: Colors.yellow,
                       ),
               )
-            : Column(
+            : Stack(
                 children: [
-                  Flexible(
-                    flex: 1,
-                    child: ListView.builder(
-                      itemBuilder: (context, index) {
-                        return QuoteView(
-                          quote: quotes![index],
-                          initialState: initialState,
-                        );
-                      },
-                      itemCount: quotes!.length,
+                  Column(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            return QuoteView(
+                              quote: quotes![index],
+                              initialState: initialState,
+                              fromSearchQuotePage: false,
+                            );
+                          },
+                          itemCount: quotes!.length,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 30,
+                    right: 20,
+                    child: ElevatedButton.icon(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
+                      ),
+                      icon: const Icon(
+                        Icons.search,
+                        color: Colors.black,
+                      ),
+                      onPressed: () => initialState(),
+                      label: const Text(
+                        'Search',
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                 ],

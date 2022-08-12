@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:quotes_app/controller/sharedpref_controller.dart';
 import 'package:quotes_app/models/quote.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class QuoteEditView extends StatefulWidget {
   final Quote quote;
@@ -20,9 +17,9 @@ class _QuoteEditViewState extends State<QuoteEditView> {
   SharedPrefController sharedPrefController = SharedPrefController();
   @override
   Widget build(BuildContext context) {
-    TextEditingController _quoteController =
+    TextEditingController quoteController =
         TextEditingController(text: widget.quote.content);
-    TextEditingController _authorController =
+    TextEditingController authorController =
         TextEditingController(text: widget.quote.author);
 
     return Scaffold(
@@ -44,7 +41,7 @@ class _QuoteEditViewState extends State<QuoteEditView> {
                   borderSide: BorderSide(color: Colors.white, width: 5.0),
                 ),
               ),
-              controller: _quoteController,
+              controller: quoteController,
               maxLines: 5,
             ),
             const SizedBox(
@@ -59,7 +56,7 @@ class _QuoteEditViewState extends State<QuoteEditView> {
                   borderSide: BorderSide(color: Colors.white, width: 5.0),
                 ),
               ),
-              controller: _authorController,
+              controller: authorController,
               maxLines: 1,
             ),
             const SizedBox(
@@ -77,8 +74,8 @@ class _QuoteEditViewState extends State<QuoteEditView> {
               ),
               onPressed: () async {
                 sharedPrefController.remove(widget.quote.id!);
-                widget.quote.author = _authorController.text.trim();
-                widget.quote.content = _quoteController.text.trim();
+                widget.quote.author = authorController.text.trim();
+                widget.quote.content = quoteController.text.trim();
                 sharedPrefController.save(
                   widget.quote.id!,
                   widget.quote.toJsonForSP(),

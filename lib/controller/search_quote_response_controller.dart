@@ -13,10 +13,10 @@ class SearchQuotesResponseController {
   });
 
   Future<List<Quote>> getSearchQuoteResponse() async {
-    var url = Uri.parse("https://quotable.io/quotes?query=$query&limit=$limit");
+    String queryString = query.replaceAll(" ", "+");
+    var url = Uri.parse("https://api.quotable.io/search/quotes?query=$queryString&limit=$limit");
     final response = await http.get(url);
     Map<String, dynamic> data = json.decode(response.body);
-    print(data);
     if (response.statusCode == 200) {
       List<Quote> quotes = [];
       for (int i = 0; i < limit; i++) {

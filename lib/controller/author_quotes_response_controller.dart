@@ -11,9 +11,9 @@ class AuthorQuotesResponseController {
   });
 
   Future<Quote> getAuthorQuoteResponse() async {
-    List<String> authorNames = author.trim().split(" ");
+    author = author.trim().replaceAll(" ", "-");
     var url = Uri.parse(
-        "https://quotable.io/quotes?author=${authorNames[0]}-${authorNames[1]}");
+        "https://quotable.io/quotes?author=$author");
     final response = await http.get(url);
     Map<String, dynamic> data = json.decode(response.body);
     if(response.statusCode == 200) {

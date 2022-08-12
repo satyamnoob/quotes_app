@@ -15,7 +15,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView>
     with AutomaticKeepAliveClientMixin {
-  int _pageIndex = 0;
+  int pageIndex = 0;
   late PageController _pageController;
   final List<Widget> pages = <Widget>[
     const AuthorQuoteView(),

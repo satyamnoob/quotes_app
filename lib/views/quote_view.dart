@@ -4,10 +4,17 @@ import 'package:quotes_app/models/quote.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class QuoteView extends StatefulWidget {
-  const QuoteView({Key? key, required this.quote, this.initialState})
-      : super(key: key);
   final Quote quote;
   final VoidCallback? initialState;
+  final bool? fromSearchQuotePage;
+  
+  const QuoteView({
+    Key? key,
+    required this.quote,
+    this.initialState,
+    this.fromSearchQuotePage,
+  }) : super(key: key);
+  
 
   @override
   State<QuoteView> createState() => _QuoteViewState();
@@ -64,10 +71,13 @@ class _QuoteViewState extends State<QuoteView> {
                 : const Icon(Icons.thumb_up),
             color: Colors.black87,
           ),
-          trailing: IconButton(
-            icon: const Icon(Icons.cancel_outlined, size: 28.0),
-            color: Colors.black87,
-            onPressed: widget.initialState,
+          trailing: Visibility(
+            visible: widget.fromSearchQuotePage!,
+            child: IconButton(
+              icon: const Icon(Icons.cancel_outlined, size: 28.0),
+              color: Colors.black87,
+              onPressed: widget.initialState,
+            ),
           ),
         ),
       ),

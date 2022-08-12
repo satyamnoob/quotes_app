@@ -28,7 +28,6 @@ class _FavoriteViewState extends State<FavoriteView> {
       if (prefs.get(key) == true) {
         var quoteKey = key.substring(4);
         var data = await sharedPrefController.read(quoteKey);
-        print(data);
         setState(() {
           Quote quote = Quote.fromJson(data, null);
           // quote.id = data['id'];
@@ -36,8 +35,6 @@ class _FavoriteViewState extends State<FavoriteView> {
         });
       }
     }
-    print(quotes.length);
-    // prefs.clear();
   }
 
   @override
@@ -46,12 +43,6 @@ class _FavoriteViewState extends State<FavoriteView> {
         ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Center(
-                child: CircularProgressIndicator(
-                  color: Colors.yellowAccent,
-                ),
-              ),
-              SizedBox(height: 20),
               Text("No quotes saved"),
             ],
           )
@@ -66,7 +57,6 @@ class _FavoriteViewState extends State<FavoriteView> {
                     onDismissed: (direction) async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      print('ID - ${quotes[index].id}');
                       prefs.remove(quotes[index].id!);
                       quotes.removeAt(index);
                       setState(() {});

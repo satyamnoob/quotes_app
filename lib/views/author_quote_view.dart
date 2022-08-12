@@ -32,7 +32,6 @@ class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView>
                   (value) => ref.read(authorQuoteProvider.state).state = value)
               .whenComplete(() => setState(() => _quoteLoading = false));
     } catch (e) {
-      print(e.toString());
       setState(() => _errLoading = true);
     }
   }
@@ -114,7 +113,11 @@ class _AuthorQuoteViewState extends ConsumerState<AuthorQuoteView>
                     : const CircularProgressIndicator(color: Colors.yellow),
               )
             : Center(
-                child: QuoteView(quote: quote, initialState: _initialState),
+                child: QuoteView(
+                  quote: quote,
+                  initialState: _initialState,
+                  fromSearchQuotePage: true,
+                ),
               );
   }
 
