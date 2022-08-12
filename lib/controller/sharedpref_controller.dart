@@ -42,25 +42,3 @@ class SharedPrefController {
     prefs.clear();
   }
 }
-
-class IdSharedPref {
-  List<String> ids = [];
-
-  read() async {
-    final prefs = await SharedPreferences.getInstance();
-    String key = 'id';
-    if (prefs.containsKey(key)) {
-      // ids.add(json.decode(prefs.getString(key)));
-    }
-  }
-
-  save(String key, value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, json.encode(value));
-  }
-
-  remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
-  }
-}

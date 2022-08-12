@@ -12,13 +12,25 @@ class SearchQuotesResponseController {
     required this.limit,
   });
 
-  Future<Quote> getAuthorQuoteResponse() async {
-    var url = Uri.parse(
-        "https://quotable.io/quotes?author=$query&limit=$limit");
+  Future<List<Quote>> getSearchQuoteResponse() async {
+    var url = Uri.parse("https://quotable.io/quotes?query=$query&limit=$limit");
     final response = await http.get(url);
     Map<String, dynamic> data = json.decode(response.body);
-    if(response.statusCode == 200) {
-      return Quote.fromJson(data, data['count']);
+    print(data);
+    if (response.statusCode == 200) {
+      List<Quote> quotes = [];
+      for (int i = 0; i < limit; i++) {
+        String content = data['results'][i]['content'];
+        String id = data['results'][i]['_id'];
+        String author = data['results'][i]['author'];
+        Quote quote = Quote(
+          author: author,
+          content: content,
+          id: id,
+        );
+        quotes.add(quote);
+      }
+      return quotes;
     } else {
       throw Exception('Failed to load');
     }

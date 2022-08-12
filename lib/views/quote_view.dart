@@ -7,7 +7,7 @@ class QuoteView extends StatefulWidget {
   const QuoteView({Key? key, required this.quote, this.initialState})
       : super(key: key);
   final Quote quote;
-  final Function? initialState;
+  final VoidCallback? initialState;
 
   @override
   State<QuoteView> createState() => _QuoteViewState();
@@ -67,7 +67,7 @@ class _QuoteViewState extends State<QuoteView> {
           trailing: IconButton(
             icon: const Icon(Icons.cancel_outlined, size: 28.0),
             color: Colors.black87,
-            onPressed: () => widget.initialState,
+            onPressed: widget.initialState,
           ),
         ),
       ),

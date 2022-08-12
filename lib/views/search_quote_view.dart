@@ -14,108 +14,178 @@ class SearchQuoteView extends ConsumerStatefulWidget {
 }
 
 class _SearchQuoteViewState extends ConsumerState<SearchQuoteView> {
-  bool _quoteArrived = false;
+  bool _quotesArrived = false;
   bool _errLoading = false;
-  bool? _isLiked;
+  bool _quoteLoading = false;
 
-  late Quote quote;
+  List<Quote>? quotes = [];
   final TextEditingController _queryController = TextEditingController();
   final TextEditingController _limitController = TextEditingController();
 
   Future<void> searchQuotesByQueryAndLimit() async {
     try {
-      quote = ref.read(searchQuoteProvider.state).state ??
+      _quoteLoading = true;
+      quotes = ref.read(searchQuoteProvider.state).state ??
           await SearchQuotesResponseController(
-                  query: _queryController.text.trim(),
-                  limit: int.parse(_limitController.text.trim()))
-              .getAuthorQuoteResponse()
+            query: _queryController.text.trim(),
+            limit: int.parse(
+              _limitController.text.trim(),
+            ),
+          )
+              .getSearchQuoteResponse()
               .then(
-                  (value) => ref.read(authorQuoteProvider.state).state = value);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      _isLiked = prefs.getBool("like${quote.id!}") ?? false;
+                  (value) => ref.read(searchQuoteProvider.state).state = value)
+              .whenComplete(() => setState(() => _quoteLoading = false));
+      if (quotes!.isNotEmpty) {
+        setState(() {
+          _quotesArrived = true;
+          _quoteLoading = false;
+        });
+      }
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // _isLiked = prefs.getBool("like${quote.id!}") ?? false;
       // prefs.clear();
     } catch (e) {
       print(e.toString());
-      setState(() => _errLoading = true);
+      setState(() {
+        _errLoading = true;
+        _quoteLoading = false;
+      });
     }
+  }
+
+  void _initialState() {
+    _errLoading = false;
+    _quotesArrived = false;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.yellowAccent,
-            ),
-            width: MediaQuery.of(context).size.width - 50,
-            height: 50,
-            child: TextField(
-              style: const TextStyle(
-                color: Colors.black,
+    return _errLoading
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Icon(Icons.error, color: Colors.red, size: 28.0),
+              const SizedBox(width: 5.0),
+              const Text(
+                "Something went wrong!",
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
-              controller: _queryController,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                hintText: "Search Query",
-                hintStyle: TextStyle(
-                  color: Colors.black,
-                ),
+              IconButton(
+                icon: const Icon(Icons.cancel_outlined, size: 28.0),
+                color: Colors.white,
+                onPressed: () => _initialState(),
               ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: Colors.yellowAccent,
-          ),
-          width: MediaQuery.of(context).size.width - 50,
-          height: 40,
-          child: TextField(
-            style: const TextStyle(
-              color: Colors.black,
-            ),
-            controller: _limitController,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: "Enter limit(1 - 100)",
-              hintStyle: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
-          ),
-          onPressed: () async {
-            searchQuotesByQueryAndLimit();
-          },
-          child: const Text(
-            'Search',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
-    );
+            ],
+          )
+        : !_quotesArrived
+            ? Center(
+                child: !_quoteLoading
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.yellowAccent,
+                              ),
+                              width: MediaQuery.of(context).size.width - 50,
+                              height: 50,
+                              child: TextField(
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                controller: _queryController,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Search Query",
+                                  hintStyle: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.yellowAccent,
+                            ),
+                            width: MediaQuery.of(context).size.width - 50,
+                            height: 40,
+                            child: TextField(
+                              style: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              controller: _limitController,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Enter limit(1 - 100)",
+                                hintStyle: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  Colors.yellowAccent),
+                            ),
+                            onPressed: () async {
+                              searchQuotesByQueryAndLimit();
+                            },
+                            child: const Text(
+                              'Search',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : const CircularProgressIndicator(
+                        color: Colors.yellow,
+                      ),
+              )
+            : Column(
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 2.0,
+                          child: ListTile(
+                            leading: Text(
+                              '${quotes![index].author!} - ',
+                            ),
+                            title: Text(
+                              quotes![index].content!,
+                              textAlign: TextAlign.end,
+                            ),
+                            contentPadding: const EdgeInsets.all(8),
+                          ),
+                        );
+                      },
+                      itemCount: quotes!.length,
+                    ),
+                  ),
+                ],
+              );
   }
 }

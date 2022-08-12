@@ -30,12 +30,13 @@ class _FavoriteViewState extends State<FavoriteView> {
         var data = await sharedPrefController.read(quoteKey);
         print(data);
         setState(() {
-          Quote quote = Quote.fromJson(data as Map<String, dynamic>, null);
+          Quote quote = Quote.fromJson(data, null);
           // quote.id = data['id'];
           quotes.add(quote);
         });
       }
     }
+    print(quotes.length);
     // prefs.clear();
   }
 
