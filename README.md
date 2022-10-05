@@ -1,10 +1,15 @@
 # quotes_app
 
-A new Flutter project.
+A simple and elegant quotes app made with Google Cross Platform App Developement Framework - Flutter.
+This app uses http package and quotable api to fetch quotes for you.
+
+Fetures - 
+1. Can fetch random quotes for you.
+2. Can fetch quotes of your favorite author.
+3. You can save quotes in your local memory.
 
 ## Getting Started
-
-This project is a starting point for a Flutter application.
+Clone this repo and run pub get in terminal.
 
 A few resources to get you started if this is your first Flutter project:
 
